@@ -1,8 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Page, PageDocument } from './schemas/page.schema';
-import { CreatePageDto } from './dto';
+import { CreatePageDto, AddBlockDto } from './dto';
 import { generateReference, generatePath } from './utils/page.util';
 
 @Injectable()
@@ -41,5 +41,29 @@ export class PagesService {
         });
 
         return subPage.save();
+    }
+
+    async addBlock(pageId: string, content: { type: string; content: any[] }, userId: string): Promise<Page> {
+        const page = await this.getPageById(pageId);
+
+        if (page.userId !== userId) {
+            throw new ForbiddenException('You can only add blocks to your own pages');
+        }
+
+        const updatedPage = await this.pageModel.findByIdAndUpdate(
+            pageId,
+            {
+                $push: {
+                    'content.content': content
+                }
+            },
+            { new: true }
+        );
+
+        if (!updatedPage) {
+            throw new NotFoundException('Page not found');
+        }
+
+        return updatedPage;
     }
 }

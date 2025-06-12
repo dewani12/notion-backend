@@ -41,3 +41,11 @@ export class CreatePageDto {
   @IsString()
   parentId?:string;
 }
+
+export class AddBlockDto {
+  @IsObject()
+  content: {
+    type: string;
+    content: any[];
+  };
+}
