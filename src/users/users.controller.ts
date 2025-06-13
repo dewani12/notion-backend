@@ -1,7 +1,6 @@
 import { Body, Controller, Get, Post, Param, NotFoundException, ConflictException, HttpCode, HttpStatus } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto';
-import { ApiTags, ApiOkResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOkResponse, ApiCreatedResponse } from '@nestjs/swagger';
 import { User } from './schemas/user.schema';
 
 @ApiTags('Users')
@@ -16,6 +15,7 @@ export class UsersController {
   }
 
   @Get(':id')
+  @ApiOkResponse({ description: 'Get user by ID' })
   async getUserById(@Param('id') id: string): Promise<User> {
     const user = await this.usersService.findById(id);
     if (!user) throw new NotFoundException('User not found');

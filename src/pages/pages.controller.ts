@@ -24,7 +24,7 @@ export class PagesController {
     return this.pagesService.addSubPage(parentId, dto, user.sub);
   }
 
-  @Patch(':id/blocks')
+  @Patch(':id/content')
   addBlock(@Param('id') pageId: string, @Body() dto: AddBlockDto, @User() user: any) {
     return this.pagesService.addBlock(pageId, dto.content, user.sub);
   }
