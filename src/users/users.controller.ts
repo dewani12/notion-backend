@@ -1,9 +1,8 @@
-import { Body, Controller, Get, Post, Param, NotFoundException, ConflictException, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Param, NotFoundException } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { ApiTags, ApiOkResponse, ApiCreatedResponse } from '@nestjs/swagger';
+import { ApiOkResponse, ApiCreatedResponse } from '@nestjs/swagger';
 import { User } from './schemas/user.schema';
 
-@ApiTags('Users')
 @Controller('users')
 export class UsersController {
   constructor(private usersService: UsersService) {}
