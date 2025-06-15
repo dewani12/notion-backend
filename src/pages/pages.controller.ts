@@ -2,7 +2,7 @@ import { Controller, Post, Get, Param, Body, UseGuards, Patch } from '@nestjs/co
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { User } from '../common/decorators/user.decorator';
 import { PagesService } from './pages.service';
-import { CreatePageDto, AddBlockDto } from './dto';
+import { CreatePageDto, AddBlockDto, SharePageDto } from './dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('pages')
@@ -27,5 +27,10 @@ export class PagesController {
   @Patch(':id/content')
   addBlock(@Param('id') pageId: string, @Body() dto: AddBlockDto, @User() user: any) {
     return this.pagesService.addBlock(pageId, dto.content, user.sub);
+  }
+
+  @Patch(':id/share')
+  async sharePage(@Param('id') id: string,@Body() sharePageDto: SharePageDto,@User() user: any ) {
+    return this.pagesService.sharePage(id, sharePageDto.memberIds, user.sub);
   }
 }

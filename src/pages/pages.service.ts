@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/commo
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Page, PageDocument } from './schemas/page.schema';
-import { CreatePageDto, AddBlockDto } from './dto';
+import { CreatePageDto } from './dto';
 import { generateReference, generatePath } from './utils/page.util';
 
 @Injectable()
@@ -56,6 +56,32 @@ export class PagesService {
                 $push: {
                     'content.content': content
                 }
+            },
+            { new: true }
+        );
+
+        if (!updatedPage) {
+            throw new NotFoundException('Page not found');
+        }
+
+        return updatedPage;
+    }
+
+    async sharePage(pageId: string, memberIds: string[], userId: string): Promise<PageDocument> {
+        const page = await this.getPageById(pageId);
+
+        if (!page) {
+            throw new NotFoundException('Page not found');
+        }
+
+        if (page.userId !== userId) {
+            throw new ForbiddenException('Only the owner can share this page');
+        }
+
+        const updatedPage = await this.pageModel.findByIdAndUpdate(
+            pageId,
+            {
+                $addToSet: { members: { $each: memberIds } },
             },
             { new: true }
         );

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsObject, IsNotEmpty } from 'class-validator';
+import { IsString, IsOptional, IsObject, IsNotEmpty, IsArray, IsMongoId } from 'class-validator';
 
 export class CreatePageDto {
   @IsString()
@@ -100,4 +100,10 @@ export class AddBlockDto {
     type: string;
     content: any[];
   };
+}
+
+export class SharePageDto {
+  @IsArray()
+  @IsMongoId({ each: true })
+  memberIds: string[];
 }

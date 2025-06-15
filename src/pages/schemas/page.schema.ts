@@ -59,6 +59,9 @@ export class Page {
 
     @Prop()
     workspaceId: string;
+
+    @Prop({type: [String], default: []})
+    members: string[];
 }
 
 export const PageSchema = SchemaFactory.createForClass(Page);
