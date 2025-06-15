@@ -11,7 +11,7 @@ export class PagesService {
         @InjectModel(Page.name) private pageModel: Model<PageDocument>,
     ) { }
 
-    async createPage(dto: CreatePageDto, userId: string): Promise<Page> {
+    async createPage(dto: CreatePageDto, userId: string): Promise<PageDocument> {
         const reference = generateReference(dto.title);
         const page = new this.pageModel({
             ...dto,
@@ -21,13 +21,13 @@ export class PagesService {
         return page.save();
     }
 
-    async getPageById(id: string): Promise<Page> {
+    async getPageById(id: string): Promise<PageDocument> {
         const page = await this.pageModel.findById(id);
         if (!page) throw new NotFoundException('Page not found');
         return page;
     }
 
-    async addSubPage(parentId: string, dto: CreatePageDto, userId: string): Promise<Page> {
+    async addSubPage(parentId: string, dto: CreatePageDto, userId: string): Promise<PageDocument> {
         const parentPage = await this.getPageById(parentId);
         const path = generatePath(parentPage.path, parentPage.reference); // fix - path should be reverse from closest node to root 
         const reference = generateReference(dto.title);
@@ -43,7 +43,7 @@ export class PagesService {
         return subPage.save();
     }
 
-    async addBlock(pageId: string, content: { type: string; content: any[] }, userId: string): Promise<Page> {
+    async addBlock(pageId: string, content: { type: string; content: any[] }, userId: string): Promise<PageDocument> {
         const page = await this.getPageById(pageId);
 
         if (page.userId !== userId) {

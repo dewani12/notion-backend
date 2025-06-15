@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from './schemas/user.schema';
 import { CreateUserDto } from './dto';
-import * as bcrypt from 'bcrypt';
+import * as argon from 'argon2';
 
 @Injectable()
 export class UsersService {
@@ -11,7 +11,7 @@ export class UsersService {
     @InjectModel(User.name) private userModel: Model<UserDocument>
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto): Promise<UserDocument> {
     const existingUser = await this.userModel.findOne({
       $or: [
         { email: createUserDto.email },
@@ -23,20 +23,20 @@ export class UsersService {
       throw new ConflictException('Username or Email is already in use');
     }
 
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    const hashedPassword = await argon.hash(createUserDto.password);
     const newUser = new this.userModel({
       ...createUserDto,
       password: hashedPassword,
     });
-
-    return newUser.save();
+    await newUser.save();
+    return newUser;
   }
 
-  async findAll(): Promise<User[]> {
+  async findAll(): Promise<UserDocument[]> {
     return this.userModel.find().select('-password -refreshToken');
   }
 
-  async findById(id: string): Promise<User | null> {
+  async findById(id: string): Promise<UserDocument | null> {
     return this.userModel.findById(id).select('-password -refreshToken');
   }
 

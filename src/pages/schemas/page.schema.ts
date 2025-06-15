@@ -1,15 +1,11 @@
 import { Prop, Schema, SchemaFactory, raw } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { Document } from 'mongoose';
-import { Transform } from 'class-transformer';
+import { HydratedDocument } from 'mongoose';
 
-export type PageDocument = Page & Document;
+export type PageDocument = HydratedDocument<Page>;
 
 @Schema({ timestamps: true })
 export class Page {
-    @Transform(({ value }) => value.toString())
-    _id: string;
-
     @ApiProperty({
         example: 'Montly Budget',
     })

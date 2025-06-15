@@ -1,16 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { Document } from 'mongoose';
+import { HydratedDocument } from 'mongoose';
 import { Transform } from 'class-transformer';
 
-export type UserDocument = User & Document;
+export type UserDocument = HydratedDocument<User>;
 
 @Schema({timestamps: true})
 export class User{
-
-    @Transform(({ value }) => value.toString())
-    _id: string;
-
     @ApiProperty({
         example: 'johndoe',
     })

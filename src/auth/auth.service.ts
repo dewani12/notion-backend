@@ -2,7 +2,7 @@ import { Injectable, ForbiddenException, UnauthorizedException } from '@nestjs/c
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { SignInDto, TokensDto } from './dto';
-import * as bcrypt from 'bcrypt';
+import * as argon from 'argon2';
 import { CreateUserDto } from '../users/dto';
 
 @Injectable()
@@ -15,8 +15,8 @@ export class AuthService {
   async signup(dto: CreateUserDto): Promise<TokensDto> {
     try {
       const user = await this.usersService.create(dto);
-      const tokens = await this.getTokens(user._id, user.email);
-      await this.hashedRt(user._id, tokens.refreshToken);
+      const tokens = await this.getTokens(user._id.toString(), user.email);
+      await this.hashedRt(user._id.toString(), tokens.refreshToken);
       return tokens;
     } catch (error) {
       console.error('Error during signup:', error);
@@ -33,13 +33,13 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const isPasswordValid = await bcrypt.compare(dto.password, user.password);
+    const isPasswordValid = await argon.verify(user.password, dto.password);
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const tokens = await this.getTokens(user._id, user.email);
-    await this.hashedRt(user._id, tokens.refreshToken);
+    const tokens = await this.getTokens(user._id.toString(), user.email);
+    await this.hashedRt(user._id.toString(), tokens.refreshToken);
     return tokens;
   }
 
@@ -60,7 +60,7 @@ export class AuthService {
   }
 
   private async hashedRt(userId: string, refreshToken: string): Promise<void> {
-    const hashedRefreshToken = await bcrypt.hash(refreshToken, 12);
+    const hashedRefreshToken = await argon.hash(refreshToken);
     await this.usersService.update(userId, { refreshToken: hashedRefreshToken });
   }
 }
